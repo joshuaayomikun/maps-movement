@@ -1,5 +1,5 @@
 import { Feature, GeoJsonProperties, Geometry, Point } from "geojson";
-import { icon, LatLng, Layer, marker, PathOptions, StyleFunction } from "leaflet";
+import { Icon, icon, IconOptions, LatLng, Layer, marker, PathOptions, StyleFunction } from "leaflet";
 import React, { useRef, useEffect, useState } from "react";
 import { GeoJSON, Marker, Popup, } from "react-leaflet";
 import { io, Socket } from "socket.io-client";
@@ -8,19 +8,15 @@ import { Objects, Topology } from "topojson-specification";
 
 interface TopoJSONProps {
   data: any,
-  color: string
+  color: string,
+  action: string,
+  defaultIcon: Icon<IconOptions>
 }
-
-const defaultIcon = icon({
-  iconUrl: "https://unpkg.com/leaflet@1.0.3/dist/images/marker-icon.png",
-  iconSize: [20, 40],
-  popupAnchor: [0, -10],
-  shadowAnchor: [10, 10]
-});
 export default function TopoJSON(props: TopoJSONProps) {
   const layerRef = useRef(null);
-  const { data, color, ...otherProps } = props;
-
+  const { data, color, action, defaultIcon } = props;
+  const numPts = data['features'][0]['geometry']['coordinates'].length
+  const start = data['features'][0]['geometry']['coordinates'][numPts - 1]
   function addData(layer: any, jsonData: Topology<Objects<GeoJsonProperties>>) {
     // debugger
     if (jsonData.type === "Topology") {
@@ -35,7 +31,7 @@ export default function TopoJSON(props: TopoJSONProps) {
 
   function onEachFeature(feature: Feature<Geometry, any>, layer: Layer) {
     // layer.bindPopup("A place")
-    debugger
+    // debugger
     if (typeof feature.properties !== "undefined") {
       const { VARNAME_3, NAME_0 } = feature.properties;
       if(VARNAME_3 && NAME_0) {
@@ -67,10 +63,10 @@ export default function TopoJSON(props: TopoJSONProps) {
 
   return (
     <>
-    <GeoJSON pointToLayer={onPointToLayer} data={data} ref={layerRef} {...otherProps} style={onStyle as StyleFunction} onEachFeature={onEachFeature} />
-    { data && <Marker position={data['features'][0]['geometry']['coordinates'][0]} icon={defaultIcon}>
-            <Popup>I am a green leaf</Popup>
-          </Marker>}
+    <GeoJSON pointToLayer={onPointToLayer} data={data} ref={layerRef} style={onStyle as StyleFunction} onEachFeature={onEachFeature} />
+    { data && <><Marker position={[start[1], start[0]]} icon={defaultIcon}>
+            <Popup>{action}</Popup>
+          </Marker></>}
     </>
   );
 }
