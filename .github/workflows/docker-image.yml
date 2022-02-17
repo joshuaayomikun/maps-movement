@@ -23,6 +23,6 @@ jobs:
         # Your Heroku API Key
         api_key: ${{ secrets.API_KEY }}
         # docker-compose File Path
-        docker_compose_file: './docker-compose.yml'
+        docker_compose_file: '/docker-compose.yml'
         # List of Docker Images generated from docker-compose and Heroku app names with type
         heroku_apps: '[{"imagename":"frontend","appname":"route-history-ui","apptype":"web"},{"imagename":"backend","appname":"route-history-api","apptype":"web"}]'
