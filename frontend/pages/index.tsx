@@ -1,11 +1,23 @@
-import { Box, Container, List, ListItem, Typography } from "@mui/material";
+import { Box, Button, Container, List, ListItem, Typography } from "@mui/material";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useState } from "react";
+import { movement } from "../src/constants/default-values";
+import { Movement } from "../src/models/default-values";
 
-const DailyROute = dynamic(() => import('../src/components/daily-routes'), { ssr: false })
+const DailyRoute = dynamic(() => import('../src/components/daily-routes'), { ssr: false })
 
 const Home: NextPage = () => {
+  const [st, setST] = useState<Movement>(movement)
+  const [refresh, setRefresh] = useState(false)
+  const getStatus =  (stat:Movement) => {
+    setST((prev) => {
+      const newData = prev?{...prev, ...stat}:{...stat}
+      return newData
+    })
+  }
+
   return (
     <Container >
       <Typography variant="h3" component={"h2"} sx={{
@@ -29,16 +41,18 @@ const Home: NextPage = () => {
           <Typography>
             This Application is an implementation of the assessment from <Link href={"/Javascript_Technical_Assessment.pdf"}>Here</Link>
           </Typography>
-          <Typography>
-            It conains the following routes:
-          </Typography>
+          <Box>
+            Click <Button>here</Button> to refresh 
+          </Box>
             <List>
-              <ListItem>Movement from Popeye's house to Popeye's office which is represented in green</ListItem>
-              <ListItem>Popeye's route lunch which is represented in red</ListItem>
-              <ListItem>Popeye's movement back home</ListItem>
+              { st?.starting && <ListItem>Starting</ListItem>}
+              { st?.goingToOffice && <ListItem>Going to the office</ListItem>}
+              { st?.goingToLunch && <ListItem>Going for lunch</ListItem>}
+              { st?.goingHome && <ListItem>Going back home</ListItem>}
+              { st?.completed && <ListItem>Completed</ListItem>}
             </List>
         </Box>
-        <DailyROute />
+        <DailyRoute getStatus={getStatus} refresh={refresh} />
       </Box>
     </Container>
   );
