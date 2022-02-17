@@ -13,6 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: zx-script
+      # You may pin to the exact commit or the version.
+      # uses: hata6502/zx-script-action@d87fa4c9481f1c2ae24197402995be5b31bd5085
+      uses: hata6502/zx-script-action@v4.1.1
+      with:
+        # 
+        script: ls
     - name: Deploy Multiple Docker Images to Heroku Apps
       # You may pin to the exact commit or the version.
       # uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@a4590bf326a12190449bdd4c07657e048b1ca9d7
