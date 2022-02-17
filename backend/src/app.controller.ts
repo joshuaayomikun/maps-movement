@@ -3,7 +3,7 @@ import { createReadStream } from 'fs';
 import { join } from 'path';
 import { AppService } from './app.service';
 
-@Controller()
+@Controller('api')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 

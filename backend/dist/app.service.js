@@ -26,18 +26,7 @@ let AppService = class AppService {
                     reject(err);
                 }
                 else {
-                    const parsedData = JSON.parse(data);
-                    const newData = Object.assign({}, parsedData);
-                    const { coordinates } = parsedData['features'][0]['geometry'];
-                    newData['features'][0]['geometry']['coordinates'] = [];
-                    let currentCoord;
-                    for (let i = 0; i < coordinates.length; i++) {
-                        setInterval(() => {
-                            currentCoord = coordinates[i];
-                            newData['features'][0]['geometry']['coordinates'].push(currentCoord);
-                            this.messageGateway.server.emit('routeToOffice', JSON.stringify(newData));
-                        }, 300);
-                    }
+                    this.messageGateway.server.emit('routeToOffice', data);
                 }
             });
         });

@@ -1,36 +1,103 @@
 import { FC, useEffect, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 import TopoJSON from './TopoJSON'
 import 'leaflet/dist/leaflet.css';
-// import * as topojson from './popeye-village-balluta.geojson.json'
-// import * as topoLunchjson from './lunch.geojson.json'
 import { Socket, io } from "socket.io-client";
 import useSWR from "swr";
+import { apiUrls } from "../constants/api-urls";
+import { API_BASE_URL } from "../constants/env-constatnts";
+import { goCarIcon, walkIcon, backCarIcon } from "../constants/icons";
 
 
+interface Posiion { x?: number, y?: number, i: number }
 const DailyROutes: FC = () => {
   const [toLunch, setToLunch] = useState(false)
-  useSWR(toLunch ? 'http://localhost:3100/to-lunch' : null)
-  useSWR('http://localhost:3100/to-office')
+  useSWR(toLunch ? apiUrls.routeToLunch : null)
+  useSWR(apiUrls.routeToOffice)
   const [socket, setSocket] = useState<Socket>()
   const [topoJSON, setTopoJSON] = useState<any | null>()
   const [reverseTopoJSON, setReverseTopoJSON] = useState<any | null>()
   const [topoLunchJSON, setTopoLunchJSON] = useState<any | null>()
+  const [toOfficeMarkerPosition, setToOfficeMarkerPosition] = useState<Posiion>()
+  const [toLunchMarkerPosition, setToLunchMarkerPosition] = useState<Posiion>()
+  const [backHomeMarkerPosition, setBackHomeMarkerPosition] = useState<Posiion>()
+  
   useEffect(() => {
-    const sock = io('http://localhost:3100')
+    const sock = io(API_BASE_URL)
     setSocket(sock)
   }, [])
+
+
+  useEffect(() => {
+    let a = setInterval(() => {
+      if (topoLunchJSON && topoJSON && reverseTopoJSON) {
+        const topoCoord = topoJSON['features'][0]['geometry']['coordinates']
+        const topoLunchCoord = topoLunchJSON['features'][0]['geometry']['coordinates']
+        const backTopoCoord = reverseTopoJSON['features'][0]['geometry']['coordinates']
+        
+        if (!toOfficeMarkerPosition) {
+          setToOfficeMarkerPosition((prev: Posiion | undefined) => {
+            return { x: topoCoord[0][0], y: topoCoord[0][1], i: 0 }
+          })
+        }
+        if (toOfficeMarkerPosition) {
+          setToOfficeMarkerPosition((prev: Posiion | undefined) => {
+            
+            if (prev && prev.i < (topoCoord.length - 1)) {
+              return { x: topoCoord[prev.i + 1][0], y: topoCoord[prev.i + 1][1], i: prev.i + 1 }
+            }
+            return prev
+          })
+          
+          if (!toLunchMarkerPosition && toOfficeMarkerPosition.i === (topoCoord.length - 1)) {
+            setToLunchMarkerPosition((prev) => {
+              return { x: topoLunchCoord[0][0], y: topoLunchCoord[0][1], i: 0 }
+            })
+          }
+          
+          if (toLunchMarkerPosition && toOfficeMarkerPosition.i >= (topoCoord.length - 1)) {
+            setToLunchMarkerPosition((prev: Posiion | undefined) => {
+              if (prev && prev.i < (topoLunchCoord.length - 1)) {
+                return { x: topoLunchCoord[prev.i + 1][0], y: topoLunchCoord[prev.i + 1][1], i: prev.i + 1 }
+              }
+              return prev
+            })
+
+            if (!backHomeMarkerPosition && toOfficeMarkerPosition.i >= (topoCoord.length - 1) && toLunchMarkerPosition.i === (topoLunchCoord.length - 1)) {
+              setBackHomeMarkerPosition((prev) => {
+                return { x: backTopoCoord[(backTopoCoord.length - 1)][0], y: backTopoCoord[(backTopoCoord.length - 1)][1], i: (backTopoCoord.length - 1) }
+              })
+            }
+            if (backHomeMarkerPosition && toOfficeMarkerPosition.i >= (topoCoord.length - 1) && toLunchMarkerPosition.i >= (topoLunchCoord.length - 1)) {
+              setBackHomeMarkerPosition((prev) => {
+                if (prev && prev.i > 0) {
+                  return { x: backTopoCoord[prev.i - 1][0], y: backTopoCoord[prev.i - 1][1], i: prev.i - 1 }
+                }
+                return prev
+              })
+            }
+          }
+        }
+
+        if (toOfficeMarkerPosition && toLunchMarkerPosition && backHomeMarkerPosition && toOfficeMarkerPosition.i === (topoCoord.length - 1) && toLunchMarkerPosition.i === (topoLunchCoord.length - 1) && backHomeMarkerPosition.i === 0) {
+          console.log("All done")
+          clearInterval(a)
+        }
+      }
+    }, 100)
+    return () => {
+      clearInterval(a)
+    }
+  }, [topoLunchJSON, topoJSON, reverseTopoJSON])
 
   useEffect(() => {
 
     if (socket) {
       socket.on('routeToOffice', (message) => {
         const parsedDaa = JSON.parse(message)
-
-        setInterval(() => {
-          console.log({ message: parsedDaa })
+        if (parsedDaa) {
           setTopoJSON(parsedDaa)
-        }, 10000)
+        }
       });
 
       socket.on('routeToLunch', message => {
@@ -41,14 +108,19 @@ const DailyROutes: FC = () => {
   }, [socket])
   useEffect(() => {
     if (topoJSON) {
-      setTimeout(() => {
-        setReverseTopoJSON((prev: any) => {
-          const cureentData = { ...prev }
-          const newData = !prev ? { ...topoJSON } : { ...prev, ...topoJSON }
-          newData['features'][0]['geometry']['coordinates'] = newData['features'][0]['geometry']['coordinates'].reverse()
-          return newData
-        })
-      }, 300);
+      setToLunch(true)
+      setReverseTopoJSON((prev: any) => {
+        const coords = topoJSON['features'][0]['geometry']['coordinates']
+        const newData = { ...topoJSON }
+        newData['features'][0]['geometry']['coordinates'] = []
+        for (let i = (coords.length - 1); i >= 0; i--) {
+          console.log({ reverseTopoJSON: coords[i] })
+          newData['features'][0]['geometry']['coordinates'].push(coords[i])
+        }
+        console.log({ newData })
+        return newData
+
+      })
     }
   }, [topoJSON])
   return (
@@ -61,12 +133,10 @@ const DailyROutes: FC = () => {
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {/* {topoJSON && <TopoJSON data={topoJSON} color={"green"} />}
-            {topoLunchJSON &&  <TopoJSON data={topoLunchJSON} color={"red"} />}
-            {reverseTopoJSON &&  <TopoJSON data={reverseTopoJSON} color={"blue"} />} */}
+      {topoJSON && toOfficeMarkerPosition && toOfficeMarkerPosition.i < (topoJSON['features'][0]['geometry']['coordinates'].length - 1) && <TopoJSON defaultIcon={goCarIcon} data={topoJSON} position={[toOfficeMarkerPosition.x, toOfficeMarkerPosition.y] as [number, number]} color={"green"} />}
+      {topoLunchJSON && toLunchMarkerPosition && toLunchMarkerPosition.i < (topoLunchJSON['features'][0]['geometry']['coordinates'].length - 1) && <TopoJSON defaultIcon={walkIcon} position={[toLunchMarkerPosition.x, toLunchMarkerPosition.y] as [number, number]} data={topoLunchJSON} color={"red"} />}
+      {reverseTopoJSON && backHomeMarkerPosition && backHomeMarkerPosition.i > 0 && <TopoJSON defaultIcon={backCarIcon} position={[backHomeMarkerPosition.x, backHomeMarkerPosition.y] as [number, number]} data={reverseTopoJSON} color={"blue"} />}
     </MapContainer>
   )
 }
-
 export default DailyROutes
-

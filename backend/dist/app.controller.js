@@ -38,7 +38,7 @@ __decorate([
     __metadata("design:returntype", String)
 ], AppController.prototype, "getRouteToLunch", null);
 AppController = __decorate([
-    (0, common_1.Controller)(),
+    (0, common_1.Controller)('api'),
     __metadata("design:paramtypes", [app_service_1.AppService])
 ], AppController);
 exports.AppController = AppController;

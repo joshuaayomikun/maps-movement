@@ -21,7 +21,7 @@ export default function MyApp(props: MyAppProps) {
 
     <SWRConfig 
       value={{
-        refreshInterval: 3000,
+        refreshInterval: 10000000000000000000000000000000000,
         fetcher: (resource, init) => fetch(resource, init).then(res => res.json())
       }}
     >
