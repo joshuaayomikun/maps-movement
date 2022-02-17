@@ -7,13 +7,14 @@ import useSWR, { useSWRConfig } from "swr";
 import { apiUrls } from "../constants/api-urls";
 import { API_BASE_URL } from "../constants/env-constatnts";
 import { goCarIcon, walkIcon, backCarIcon } from "../constants/icons";
-import { Movement } from "../models/default-values";
-import { movement } from "../constants/default-values";
+import { Destination, Movement } from "../models/default-values";
+import { destination, movement } from "../constants/default-values";
 
 
 interface Posiion { x?: number, y?: number, i: number }
 interface DailyRoutesProps {
   getStatus: (stat: Movement) => void,
+  getDestination: (stat: Destination) => void,
   refresh: boolean
 }
 
@@ -41,6 +42,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
       setToLunch(false)
       mutate(apiUrls.routeToOffice)
       props.getStatus({...movement, starting: true})
+      props.getDestination({...destination})
       setToOfficeMarkerPosition(undefined)
       setToLunchMarkerPosition(undefined)
       setBackHomeMarkerPosition(undefined)
@@ -55,6 +57,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
 
         if (!toOfficeMarkerPosition) {
           setToOfficeMarkerPosition((prev: Posiion | undefined) => {
+            props.getDestination({ ...destination})
             props.getStatus({ ...movement, goingToOffice: true })
             return { x: topoCoord[0][0], y: topoCoord[0][1], i: 0 }
           })
@@ -70,6 +73,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
           })
 
           if (!toLunchMarkerPosition && toOfficeMarkerPosition.i === (topoCoord.length - 1)) {
+            props.getDestination({ ...destination, gotToOffice: true })
             setToLunchMarkerPosition((prev) => {
               props.getStatus({ ...movement, goingToLunch: true })
               return { x: topoLunchCoord[0][0], y: topoLunchCoord[0][1], i: 0 }
@@ -79,6 +83,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
           if (toLunchMarkerPosition && toOfficeMarkerPosition.i >= (topoCoord.length - 1)) {
             setToLunchMarkerPosition((prev: Posiion | undefined) => {
               if (prev && prev.i < (topoLunchCoord.length - 1)) {
+                props.getDestination({ ...destination})
                 props.getStatus({ ...movement, goingToLunch: true })
                 return { x: topoLunchCoord[prev.i + 1][0], y: topoLunchCoord[prev.i + 1][1], i: prev.i + 1 }
               }
@@ -86,6 +91,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
             })
 
             if (!backHomeMarkerPosition && toOfficeMarkerPosition.i >= (topoCoord.length - 1) && toLunchMarkerPosition.i === (topoLunchCoord.length - 1)) {
+              props.getDestination({ ...destination, gotBackFromLunch: true })
               setBackHomeMarkerPosition((prev) => {
                 props.getStatus({ ...movement, goingHome: true })
                 return { x: backTopoCoord[(backTopoCoord.length - 1)][0], y: backTopoCoord[(backTopoCoord.length - 1)][1], i: (backTopoCoord.length - 1) }
@@ -93,6 +99,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
             }
             if (backHomeMarkerPosition && toOfficeMarkerPosition.i >= (topoCoord.length - 1) && toLunchMarkerPosition.i >= (topoLunchCoord.length - 1)) {
               setBackHomeMarkerPosition((prev) => {
+                props.getDestination({ ...destination })
                 props.getStatus({ ...movement, goingHome: true })
                 if (prev && prev.i > 0) {
                   return { x: backTopoCoord[prev.i - 1][0], y: backTopoCoord[prev.i - 1][1], i: prev.i - 1 }
@@ -105,6 +112,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
         if (toOfficeMarkerPosition && toLunchMarkerPosition && backHomeMarkerPosition && toOfficeMarkerPosition.i === (topoCoord.length - 1) && toLunchMarkerPosition.i === (topoLunchCoord.length - 1) && backHomeMarkerPosition.i === 0) {
           console.log("All done")
           clearInterval(a)
+          props.getDestination({ ...destination, gotHome: true })
           props.getStatus({ ...movement, completed: true })
         }
       }
@@ -136,12 +144,9 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
     let setReverseTimer: NodeJS.Timeout;
     if (topoJSON) {
       if (!toLunch) {
-        setLunchTimer = setTimeout(() => {
           setToLunch(true)
-        }, 5000);
       }
       if (!reverseTopoJSON) {
-        setReverseTimer = setTimeout(() => {
           setReverseTopoJSON((prev: any) => {
             const coords = topoJSON['features'][0]['geometry']['coordinates']
             const newData = { ...topoJSON }
@@ -153,7 +158,6 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
             console.log({ newData })
             return newData
           })
-        }, 10000);
 
       }
     }

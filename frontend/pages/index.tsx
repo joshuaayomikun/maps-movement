@@ -2,14 +2,15 @@ import { Box, Button, Container, List, ListItem, Typography } from "@mui/materia
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useState } from "react";
-import { movement } from "../src/constants/default-values";
-import { Movement } from "../src/models/default-values";
+import { useEffect, useState } from "react";
+import { destination, movement } from "../src/constants/default-values";
+import { Destination, Movement } from "../src/models/default-values";
 
 const DailyRoute = dynamic(() => import('../src/components/daily-routes'), { ssr: false })
 
 const Home: NextPage = () => {
   const [st, setST] = useState<Movement>(movement)
+  const [dst, setDst] = useState<Destination>(destination)
   const [refresh, setRefresh] = useState(false)
   const getStatus =  (stat:Movement) => {
     setST((prev) => {
@@ -17,7 +18,17 @@ const Home: NextPage = () => {
       return newData
     })
   }
-
+  const getDestination =  (stat:Destination) => {
+    setDst((prev) => {
+      const newData = prev?{...prev, ...stat}:{...stat}
+      return newData
+    })
+  }
+  useEffect(()=>{
+    if(st.completed) {
+      setRefresh(false)
+    }
+  },[st.completed])
   return (
     <Container >
       <Typography variant="h3" component={"h2"} sx={{
@@ -42,17 +53,22 @@ const Home: NextPage = () => {
             This Application is an implementation of the assessment from <Link href={"/Javascript_Technical_Assessment.pdf"}>Here</Link>
           </Typography>
           <Box>
-            Click <Button>here</Button> to refresh 
+            Click <Button onClick={(e) => {
+              setRefresh(true)
+            }}>here</Button> to refresh 
           </Box>
             <List>
               { st?.starting && <ListItem>Starting</ListItem>}
               { st?.goingToOffice && <ListItem>Going to the office</ListItem>}
+              { dst?.gotToOffice && <ListItem>Got to the office</ListItem>}
               { st?.goingToLunch && <ListItem>Going for lunch</ListItem>}
+              { dst?.gotBackFromLunch && <ListItem>Got back from lunch</ListItem>}
               { st?.goingHome && <ListItem>Going back home</ListItem>}
               { st?.completed && <ListItem>Completed</ListItem>}
+              { dst?.gotHome && <ListItem>Got home</ListItem>}
             </List>
         </Box>
-        <DailyRoute getStatus={getStatus} refresh={refresh} />
+        <DailyRoute getStatus={getStatus} getDestination={getDestination} refresh={refresh} />
       </Box>
     </Container>
   );
