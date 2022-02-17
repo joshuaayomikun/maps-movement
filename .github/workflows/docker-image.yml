@@ -12,15 +12,15 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps
+    steps:
     - name: GitHub Script
       uses: actions/github-script@v6.0.0
       with:
         # The script to run
         script: ls
-        - name: Deploy Multiple Docker Images to Heroku Apps
-          # You may pin to the exact commit or the version.
-          # uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@a4590bf326a12190449bdd4c07657e048b1ca9d7
+    - name: Deploy Multiple Docker Images to Heroku Apps
+      # You may pin to the exact commit or the version.
+      # uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@a4590bf326a12190449bdd4c07657e048b1ca9d7
       uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@v1.0
       with:
         # Email linked to your Heroku account
