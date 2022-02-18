@@ -1,0 +1,5 @@
+run:
+  web: 
+    command: 
+      - npm start
+    image: worker
