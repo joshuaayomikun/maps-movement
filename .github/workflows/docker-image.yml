@@ -8,11 +8,13 @@ on:
 
 jobs:
 
-  build:
+  deploy:
 
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Deploy Multiple Docker Images to Heroku Apps
       # You may pin to the exact commit or the version.
       # uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@a4590bf326a12190449bdd4c07657e048b1ca9d7
