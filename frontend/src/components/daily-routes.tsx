@@ -26,7 +26,6 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
   const {mutate} = useSWRConfig()
   const [socket, setSocket] = useState<Socket>()
   const [topoJSON, setTopoJSON] = useState<any | null>()
-  const [reverseTopoJSON, setReverseTopoJSON] = useState<any | null>()
   const [topoLunchJSON, setTopoLunchJSON] = useState<any | null>()
   const [toOfficeMarkerPosition, setToOfficeMarkerPosition] = useState<Posiion>()
   const [toLunchMarkerPosition, setToLunchMarkerPosition] = useState<Posiion>()
@@ -50,10 +49,9 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
   }, [props.refresh])
   useEffect(() => {
     let a = setInterval(() => {
-      if (topoLunchJSON && topoJSON && reverseTopoJSON) {
+      if (topoLunchJSON && topoJSON) {
         const topoCoord = topoJSON['features'][0]['geometry']['coordinates']
         const topoLunchCoord = topoLunchJSON['features'][0]['geometry']['coordinates']
-        const backTopoCoord = reverseTopoJSON['features'][0]['geometry']['coordinates']
 
         if (!toOfficeMarkerPosition) {
           setToOfficeMarkerPosition((prev: Posiion | undefined) => {
@@ -94,7 +92,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
               props.getDestination({ ...destination, gotBackFromLunch: true })
               setBackHomeMarkerPosition((prev) => {
                 props.getStatus({ ...movement, goingHome: true })
-                return { x: backTopoCoord[(backTopoCoord.length - 1)][0], y: backTopoCoord[(backTopoCoord.length - 1)][1], i: (backTopoCoord.length - 1) }
+                return { x: topoCoord[(topoCoord.length - 1)][0], y: topoCoord[(topoCoord.length - 1)][1], i: (topoCoord.length - 1) }
               })
             }
             if (backHomeMarkerPosition && toOfficeMarkerPosition.i >= (topoCoord.length - 1) && toLunchMarkerPosition.i >= (topoLunchCoord.length - 1)) {
@@ -102,7 +100,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
                 props.getDestination({ ...destination })
                 props.getStatus({ ...movement, goingHome: true })
                 if (prev && prev.i > 0) {
-                  return { x: backTopoCoord[prev.i - 1][0], y: backTopoCoord[prev.i - 1][1], i: prev.i - 1 }
+                  return { x: topoCoord[prev.i - 1][0], y: topoCoord[prev.i - 1][1], i: prev.i - 1 }
                 }
                 return prev
               })
@@ -120,7 +118,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
     return () => {
       clearInterval(a)
     }
-  }, [topoLunchJSON, topoJSON, reverseTopoJSON])
+  }, [topoLunchJSON, topoJSON])
 
   useEffect(() => {
     props.getStatus({ ...movement, starting: true })
@@ -140,36 +138,12 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
   }, [socket])
 
   useEffect(() => {
-    let setLunchTimer: NodeJS.Timeout;
-    let setReverseTimer: NodeJS.Timeout;
     if (topoJSON) {
       if (!toLunch) {
           setToLunch(true)
       }
-      if (!reverseTopoJSON) {
-          setReverseTopoJSON((prev: any) => {
-            const coords = topoJSON['features'][0]['geometry']['coordinates']
-            const newData = { ...topoJSON }
-            newData['features'][0]['geometry']['coordinates'] = []
-            for (let i = (coords.length - 1); i >= 0; i--) {
-              console.log({ reverseTopoJSON: coords[i] })
-              newData['features'][0]['geometry']['coordinates'].push(coords[i])
-            }
-            console.log({ newData })
-            return newData
-          })
-
-      }
     }
-    return () => {
-      if (setLunchTimer) {
-        clearTimeout(setLunchTimer)
-      }
-      if (setReverseTimer) {
-        clearTimeout(setReverseTimer)
-      }
-    }
-  }, [topoJSON, setToLunch, reverseTopoJSON])
+  }, [topoJSON, setToLunch])
   return (
     <MapContainer
       center={[35.91504360132915, 14.495204687118528]}
@@ -182,7 +156,7 @@ const DailyRoutes: FC<DailyRoutesProps> = (props: DailyRoutesProps) => {
       />
       {topoJSON && toOfficeMarkerPosition && toOfficeMarkerPosition.i < (topoJSON['features'][0]['geometry']['coordinates'].length - 1) && <TopoJSON defaultIcon={goCarIcon} data={topoJSON} position={[toOfficeMarkerPosition.x, toOfficeMarkerPosition.y] as [number, number]} color={"green"} />}
       {topoLunchJSON && toLunchMarkerPosition && toLunchMarkerPosition.i < (topoLunchJSON['features'][0]['geometry']['coordinates'].length - 1) && <TopoJSON defaultIcon={walkIcon} position={[toLunchMarkerPosition.x, toLunchMarkerPosition.y] as [number, number]} data={topoLunchJSON} color={"red"} />}
-      {reverseTopoJSON && backHomeMarkerPosition && backHomeMarkerPosition.i > 0 && <TopoJSON defaultIcon={backCarIcon} position={[backHomeMarkerPosition.x, backHomeMarkerPosition.y] as [number, number]} data={reverseTopoJSON} color={"blue"} />}
+      {topoJSON && backHomeMarkerPosition && backHomeMarkerPosition.i > 0 && <TopoJSON defaultIcon={backCarIcon} position={[backHomeMarkerPosition.x, backHomeMarkerPosition.y] as [number, number]} data={topoJSON} color={"blue"} />}
     </MapContainer>
   )
 }

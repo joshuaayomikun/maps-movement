@@ -5,3 +5,6 @@ export const apiUrls: Readonly<ApiUrls> = {
     routeToOffice: `${API_BASE_URL}api/to-office`,
     routeToLunch: `${API_BASE_URL}api/to-lunch`,
 }
+
+
+console.log({API_BASE_URL, apiUrls})

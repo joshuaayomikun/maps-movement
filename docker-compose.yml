@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.9'
 
 services:
   frontend:
@@ -17,10 +17,13 @@ services:
   backend:
     image: backend
     ports:
-      - 3100:80
+      - 3100:3100
     volumes:
        - ./api:/usr/src/app/backend
        - /usr/src/app/backend/node_modules
     build:
       context: ./backend
+      args:
+        - NODE_ENV=${NODE_ENV}
+        - NODE_PORT=${NODE_PORT}
       dockerfile: ./Dockerfile

@@ -19,10 +19,13 @@ COPY . .
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED 1
 
 ARG NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL ${NEXT_PUBLIC_API_BASE_URL}
+
+RUN echo ${NEXT_PUBLIC_API_BASE_URL}
+
 RUN npm run build
 
 
@@ -37,7 +40,5 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # Copy from the stahg 1
 COPY --from=builder /app/out /usr/share/nginx/html
-
-EXPOSE 3000 80
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
