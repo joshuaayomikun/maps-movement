@@ -33,7 +33,7 @@ FROM nginx:alpine
 
 #!/bin/sh
 
-COPY ./public/.nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./public/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 ## Remove default nginx index page
 RUN rm -rf /usr/share/nginx/html/*
