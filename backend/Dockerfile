@@ -30,7 +30,7 @@ COPY --from=development /usr/src/app/dist ./dist
 ARG NODE_ENV
 ENV NODE_ENV ${NODE_ENV}
 
-ARG NODE_PORT
-ENV NODE_PORT ${NODE_PORT}
+ARG PORT
+ENV PORT ${PORT}
 
 CMD ["node", "dist/main"]
