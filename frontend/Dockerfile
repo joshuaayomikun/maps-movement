@@ -40,3 +40,5 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # Copy from the stahg 1
 COPY --from=builder /app/out /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]
