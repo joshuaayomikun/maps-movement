@@ -25,5 +25,5 @@ services:
       context: ./backend
       args:
         - NODE_ENV=${NODE_ENV}
-        - NODE_PORT=${NODE_PORT}
+        - PORT=${PORT}
       dockerfile: ./Dockerfile
