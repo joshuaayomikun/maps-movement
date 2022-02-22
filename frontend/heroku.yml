@@ -1,5 +1,0 @@
-run:
-  web: 
-    command: 
-      - nginx -g daemon off
-    image: worker
