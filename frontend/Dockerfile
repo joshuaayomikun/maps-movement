@@ -33,7 +33,7 @@ FROM nginx:alpine
 
 #!/bin/sh
 
-COPY ./public/.nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./public/.nginx/nginx.conf /etc/nginx/nginx.conf
 
 ## Remove default nginx index page
 RUN rm -rf /usr/share/nginx/html/*
@@ -41,4 +41,4 @@ RUN rm -rf /usr/share/nginx/html/*
 # Copy from the stahg 1
 COPY --from=builder /app/out /usr/share/nginx/html
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off"]
