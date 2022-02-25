@@ -5,6 +5,7 @@ env:
   NODE_ENV: '{{secrets.NODE_ENV}}'
   FRONTEND_PORT: '{{secrets.FRONTEND_PORT}}'
   BACKEND_PORT: '{{secrets.BACKEND_PORT}}'
+  PORT: '{{secrets.PORT}}'
 on:
   push:
     branches: [ main ]
