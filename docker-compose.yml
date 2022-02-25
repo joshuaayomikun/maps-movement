@@ -2,6 +2,8 @@ version: '3.9'
 
 services:
   frontend:
+    environment:
+      - FRONTEND_PORT=${FRONTEND_PORT}
     image: frontend
     volumes:
        - ./api:/usr/src/app/frontend
@@ -15,9 +17,11 @@ services:
         - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
       dockerfile: ./Dockerfile
   backend:
+    environment:
+      - BACKEND_PORT=${BACKEND_PORT}
     image: backend
     ports:
-      - ${BACKEND_PORT}:3000
+      - ${BACKEND_PORT}:${BACKEND_PORT}
     volumes:
        - ./api:/usr/src/app/backend
        - /usr/src/app/backend/node_modules
