@@ -63,4 +63,4 @@ ENV FRONTEND_PORT ${FRONTEND_PORT}PUBLIC_API_BASE_URL}
 ARG PORT
 ENV PORT ${PORT}
 
-CMD ["npm", "run", "start", "--", "-p", "${PORT}"]
+CMD ["npm", "run", "start", "--", "-p", "3000"]
