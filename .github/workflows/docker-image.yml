@@ -1,5 +1,10 @@
 name: Docker Image CI
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: '{{secrets.NEXT_PUBLIC_API_BASE_URL}}'
+  NODE_ENV: '{{secrets.NODE_ENV}}'
+  FRONTEND_PORT: '{{secrets.FRONTEND_PORT}}'
+  BACKEND_PORT: '{{secrets.BACKEND_PORT}}'
 on:
   push:
     branches: [ main ]
@@ -11,7 +16,6 @@ jobs:
   deploy:
 
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
