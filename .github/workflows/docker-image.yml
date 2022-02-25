@@ -3,7 +3,8 @@ name: Docker Image CI
 env:
   NEXT_PUBLIC_API_BASE_URL: '{{secrets.NEXT_PUBLIC_API_BASE_URL}}'
   NODE_ENV: '{{secrets.NODE_ENV}}'
-  PORT: '{{secrets.PORT}}'
+  FRONTEND_PORT: '{{secrets.FRONTEND_PORT}}'
+  BACKEND_PORT: '{{secrets.BACKEND_PORT}}'
 on:
   push:
     branches: [ main ]
