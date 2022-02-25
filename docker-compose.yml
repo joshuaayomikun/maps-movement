@@ -9,7 +9,7 @@ services:
        - ./api:/usr/src/app/frontend
        - /usr/src/app/frontend/node_modules
     ports:
-      - ${FRONTEND_PORT}:3000"
+      - ${FRONTEND_PORT}:${BACKEND_PORT}
     build:
       context: ./frontend
       args:
