@@ -7,7 +7,7 @@ services:
        - ./api:/usr/src/app/frontend
        - /usr/src/app/frontend/node_modules
     ports:
-      - 3000:8080
+      - 80:8080
     build:
       context: ./frontend
       args:
