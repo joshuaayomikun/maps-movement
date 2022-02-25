@@ -11,13 +11,13 @@ services:
     build:
       context: ./frontend
       args:
-        - NODE_ENV=${NODE_ENV}
+        - "NODE_ENV=${NODE_ENV}"
         - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
       dockerfile: ./Dockerfile
   backend:
     image: backend
     ports:
-      - 3100:${BACKEND_PORT}
+      - "3100:${BACKEND_PORT}"
     volumes:
        - ./api:/usr/src/app/backend
        - /usr/src/app/backend/node_modules
