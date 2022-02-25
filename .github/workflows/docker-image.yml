@@ -25,8 +25,11 @@ jobs:
       # uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@a4590bf326a12190449bdd4c07657e048b1ca9d7
       uses: snithyanantham/docker-compose-multiple-apps-heroku-deploy@v1.0
       env:
+        NEXT_PUBLIC_API_BASE_URL: '{{secrets.NEXT_PUBLIC_API_BASE_URL}}'
+        NODE_ENV: '{{secrets.NODE_ENV}}'
         FRONTEND_PORT: '{{secrets.FRONTEND_PORT}}'
         BACKEND_PORT: '{{secrets.BACKEND_PORT}}'
+        PORT: '{{secrets.PORT}}'
       with:
         # Email linked to your Heroku account
         email: ${{ secrets.EMAIL }}
