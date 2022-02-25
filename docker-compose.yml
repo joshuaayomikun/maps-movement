@@ -27,3 +27,4 @@ services:
         - NODE_ENV=${NODE_ENV}
         - BACKEND_PORT=${BACKEND_PORT}
       dockerfile: ./Dockerfile
+    
