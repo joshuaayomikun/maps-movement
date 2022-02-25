@@ -2,14 +2,12 @@ version: '3.9'
 
 services:
   frontend:
-    environment:
-      - FRONTEND_PORT=${FRONTEND_PORT}
     image: frontend
     volumes:
        - ./api:/usr/src/app/frontend
        - /usr/src/app/frontend/node_modules
     ports:
-      - ${FRONTEND_PORT}:${BACKEND_PORT}
+      - 3000:3000
     build:
       context: ./frontend
       args:
@@ -17,11 +15,9 @@ services:
         - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
       dockerfile: ./Dockerfile
   backend:
-    environment:
-      - BACKEND_PORT=${BACKEND_PORT}
     image: backend
     ports:
-      - ${BACKEND_PORT}:${BACKEND_PORT}
+      - 3100:3100
     volumes:
        - ./api:/usr/src/app/backend
        - /usr/src/app/backend/node_modules
@@ -29,4 +25,5 @@ services:
       context: ./backend
       args:
         - NODE_ENV=${NODE_ENV}
+        - BACKEND_PORT=${BACKEND_PORT}
       dockerfile: ./Dockerfile

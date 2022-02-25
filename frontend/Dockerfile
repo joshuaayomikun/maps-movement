@@ -54,4 +54,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL ${NEXT_PUBLIC_API_BASE_URL}
+
+ARG FRONTEND_PORT
+ENV FRONTEND_PORT ${FRONTEND_PORT}
+
 CMD ["node", "server.js"]
