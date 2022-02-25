@@ -2,10 +2,6 @@ version: '3.9'
 
 services:
   frontend:
-    environment:
-      - FRONTEND_PORT=${FRONTEND_PORT}
-      - BANKEND_PORT=${BANKEND_PORT}
-      - NODE_ENV=${NODE_ENV}
     image: frontend
     volumes:
        - ./api:/usr/src/app/frontend
